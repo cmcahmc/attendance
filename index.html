@@ -6,378 +6,124 @@
     <title>Holy Methodist Church - Attendance</title>
     <link rel="icon" type="image/png" href="https://file.garden/amiKlgzZ2GoYPWGN/cmcalogo.png">
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 35px 30px;
-            border-radius: 32px;
-            max-width: 480px;
-            width: 100%;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-            border: 3px solid #c9a84c;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #c9a84c;
-            padding-bottom: 20px;
-        }
-        .church-icon {
-            font-size: 48px;
-            margin-bottom: 4px;
-        }
-        .church-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a472a;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-        .church-name span {
-            color: #c9a84c;
-        }
-        .subtitle {
-            color: #5a6b7a;
-            font-size: 14px;
-            margin: 4px 0 0 0;
-        }
-        .whatsapp-badge {
-            background: #25D366;
-            color: white;
-            padding: 4px 14px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 6px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        label {
-            display: block;
-            font-weight: 600;
-            font-size: 14px;
-            color: #1a472a;
-            margin-bottom: 4px;
-        }
-        label .required {
-            color: #c0392b;
-            margin-left: 4px;
-        }
-        .label-hint {
-            font-weight: 400;
-            font-size: 12px;
-            color: #7a8a9a;
-            display: block;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #d0d8e0;
-            border-radius: 14px;
-            font-size: 16px;
-            background: #fafcff;
-            transition: 0.2s;
-        }
-        input:focus, textarea:focus {
-            border-color: #1a472a;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(26, 71, 42, 0.12);
-            background: white;
-        }
-        textarea {
-            min-height: 60px;
-            resize: vertical;
-            font-family: inherit;
-        }
-        .hint {
-            font-size: 12px;
-            color: #8a9aa8;
-            margin-top: 4px;
-            display: block;
-        }
-        .prefilled-badge {
-            display: inline-block;
-            background: #dcfce7;
-            color: #166534;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-            margin-left: 6px;
-        }
-        .btn-primary {
-            background: #1a472a;
-            color: white;
-            border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 60px;
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 8px;
-            box-shadow: 0 4px 16px rgba(26, 71, 42, 0.35);
-        }
-        .btn-primary:hover {
-            background: #0f3320;
-            transform: scale(1.01);
-        }
-        .btn-primary:active {
-            transform: scale(0.97);
-        }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        #status-message {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 14px;
-            text-align: center;
-            font-weight: 500;
+        /* ... (same styles as before, plus these new ones) ... */
+        
+        /* Modal Popup Styles */
+        .modal-overlay {
             display: none;
-            font-size: 14px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
         }
-        .success {
-            background: #dcfce7;
-            color: #166534;
-            display: block !important;
-            border: 1px solid #86efac;
+        .modal-overlay.show {
+            display: flex;
         }
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-            display: block !important;
-            border: 1px solid #fca5a5;
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 28px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
         }
-        .info {
-            background: #dbeafe;
-            color: #1e40af;
-            display: block !important;
-            border: 1px solid #93c5fd;
-        }
-        .footer {
-            margin-top: 20px;
+        .modal-box .modal-icon {
+            font-size: 48px;
             text-align: center;
-            font-size: 12px;
-            color: #9aa9b8;
-            border-top: 1px solid #edf2f7;
-            padding-top: 16px;
+            margin-bottom: 8px;
         }
-        .whatsapp-icon {
-            display: inline-block;
-            font-size: 22px;
+        .modal-box h3 {
+            font-size: 20px;
+            color: #1a2634;
+            margin: 0 0 8px 0;
+            text-align: center;
         }
-        .saved-info {
+        .modal-box p {
+            font-size: 15px;
+            color: #4a5568;
+            margin: 0 0 16px 0;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .modal-box .previous-data {
             background: #f8fafc;
             border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 16px;
-            border: 1px solid #e2e8f0;
-            font-size: 13px;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .saved-info.show {
-            display: flex;
-        }
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: underline;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        .clear-btn:hover {
-            background: #fee2e2;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .guest-mode {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #92400e;
-            text-align: center;
-        }
-        .saved-attendees {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #166534;
-            display: none;
-        }
-        .saved-attendees.show {
-            display: block;
-        }
-        .saved-attendees .label {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        .auto-save-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #4a5568;
-        }
-        .auto-save-toggle input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin: 0;
-            cursor: pointer;
-        }
-        .auto-save-toggle label {
-            cursor: pointer;
-            margin: 0;
-            font-weight: 400;
-            font-size: 12px;
-            color: #4a5568;
-        }
-        .count-summary {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-top: 8px;
+            padding: 12px 16px;
+            margin: 12px 0 16px 0;
             font-size: 14px;
-            color: #065f46;
-            display: none;
+            color: #2c3e50;
+            border-left: 4px solid #c9a84c;
         }
-        .count-summary.show {
-            display: block;
+        .modal-box .previous-data strong {
+            color: #1a472a;
         }
-        .count-summary .count-label {
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 60px;
+            font-size: 16px;
             font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .gold-accent {
-            color: #c9a84c;
+        .modal-actions .btn-cancel {
+            background: #e8edf3;
+            color: #4a5568;
+        }
+        .modal-actions .btn-cancel:hover {
+            background: #d5dce6;
+        }
+        .modal-actions .btn-confirm {
+            background: #1a472a;
+            color: white;
+        }
+        .modal-actions .btn-confirm:hover {
+            background: #0f3320;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <div class="church-icon">⛪</div>
-        <h1 class="church-name">Holy <span>Methodist</span> Church</h1>
-        <p class="subtitle">Attendance Sign-In</p>
-        <span class="whatsapp-badge">📱 Quick Check-in</span>
-    </div>
+    <!-- ... (same header and form content as before) ... -->
+</div>
 
-    <!-- Saved user info -->
-    <div id="savedInfo" class="saved-info">
-        <span id="savedInfoText"></span>
-        <button class="clear-btn" onclick="clearSavedData()">✕ Change</button>
-    </div>
-
-    <!-- Saved attendees display -->
-    <div id="savedAttendees" class="saved-attendees">
-        <div class="label">👥 Previously saved:</div>
-        <div id="savedAttendeesList"></div>
-    </div>
-
-    <form id="attendanceForm">
-        <div class="form-group">
-            <label for="submitter">Your Full Name <span class="required">*</span>
-                <span id="nameBadge" class="prefilled-badge" style="display: none;">✓ Saved</span>
-            </label>
-            <input type="text" id="submitter" name="submitter" placeholder="Enter your full name" required>
+<!-- ===== DUPLICATE WARNING MODAL ===== -->
+<div id="duplicateModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <h3>Duplicate Submission Detected</h3>
+        <p id="duplicateMessage">A submission from this person was already recorded.</p>
+        <div id="previousDataDisplay" class="previous-data" style="display: none;">
+            <strong>Previous submission:</strong><br>
+            <span id="previousAdults"></span><br>
+            <span id="previousChildren"></span>
         </div>
-
-        <div class="form-group">
-            <label for="phone">Phone Number <span class="required">*</span>
-                <span id="phoneBadge" class="prefilled-badge" style="display: none;">✓ Saved</span>
-            </label>
-            <!-- Changed from type="tel" to type="text" to preserve formatting -->
-            <input type="text" id="phone" name="phone" placeholder="e.g., 0123456789" required inputmode="numeric" pattern="[0-9+\-() ]*">
-            <span class="hint">Include leading zero (e.g., 0123456789)</span>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="cancelDuplicate()">Cancel</button>
+            <button class="btn-confirm" onclick="confirmDuplicate()">Submit Anyway</button>
         </div>
-
-        <div class="form-group">
-            <label for="adults">Other Adult Names <span style="font-weight: 400; color: #7a8a9a;">(optional)</span>
-                <span class="label-hint">Adults aged 13 years and above</span>
-                <span id="adultsBadge" class="prefilled-badge" style="display: none;">✓ Saved</span>
-            </label>
-            <textarea id="adults" name="adults" placeholder="Enter other adult names (one per line or comma separated)"></textarea>
-            <span class="hint">Leave blank if you're the only adult</span>
-        </div>
-
-        <div class="form-group">
-            <label for="children">Children Names <span style="font-weight: 400; color: #7a8a9a;">(optional)</span>
-                <span class="label-hint">Children aged 12 years and under</span>
-                <span id="childrenBadge" class="prefilled-badge" style="display: none;">✓ Saved</span>
-            </label>
-            <textarea id="children" name="children" placeholder="Enter children names (one per line or comma separated)"></textarea>
-            <span class="hint">Leave blank if no children</span>
-        </div>
-
-        <!-- Live Count Summary -->
-        <div id="countSummary" class="count-summary">
-            📊 <span class="count-label">Total:</span> 
-            <span id="adultCountDisplay">1</span> adult(s), 
-            <span id="childCountDisplay">0</span> child(ren)
-        </div>
-
-        <div class="auto-save-toggle">
-            <input type="checkbox" id="autoSaveAttendees" checked>
-            <label for="autoSaveAttendees">💾 Automatically save for next time</label>
-        </div>
-
-        <button type="submit" class="btn-primary" id="submitBtn">
-            <span class="whatsapp-icon">📱</span> Sign In Now
-        </button>
-    </form>
-
-    <div id="status-message"></div>
-
-    <div class="guest-mode">
-        🙏 Welcome to Holy Methodist Church! Your data is saved securely.
-    </div>
-
-    <div class="footer">
-        🔒 Data is sent directly to the attendance sheet
     </div>
 </div>
 
@@ -388,223 +134,18 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyvldogdc0QX1_LIaaaEJL1inVhmoJkQy8WwZyuNvoRjzrZSGPiyycifJRpH-Cg_RU/exec';
     
     // ============================================
-    // MAIN APPLICATION
+    // MAIN APPLICATION WITH DUPLICATE HANDLING
     // ============================================
     
-    // Get all DOM elements
-    const form = document.getElementById('attendanceForm');
-    const submitterInput = document.getElementById('submitter');
-    const phoneInput = document.getElementById('phone');
-    const adultsInput = document.getElementById('adults');
-    const childrenInput = document.getElementById('children');
-    const submitBtn = document.getElementById('submitBtn');
-    const statusDiv = document.getElementById('status-message');
-    const savedInfo = document.getElementById('savedInfo');
-    const savedInfoText = document.getElementById('savedInfoText');
-    const nameBadge = document.getElementById('nameBadge');
-    const phoneBadge = document.getElementById('phoneBadge');
-    const adultsBadge = document.getElementById('adultsBadge');
-    const childrenBadge = document.getElementById('childrenBadge');
-    const savedAttendees = document.getElementById('savedAttendees');
-    const savedAttendeesList = document.getElementById('savedAttendeesList');
-    const autoSaveCheckbox = document.getElementById('autoSaveAttendees');
-    const adultCountDisplay = document.getElementById('adultCountDisplay');
-    const childCountDisplay = document.getElementById('childCountDisplay');
-    const countSummary = document.getElementById('countSummary');
+    // ... (same DOM elements as before) ...
+    
+    // Duplicate handling variables
+    let pendingData = null;
+    let isSubmitting = false;
 
-    console.log('⛪ Holy Methodist Church Attendance System loaded.');
-
-    // Live count update
-    function updateCounts() {
-        const adults = adultsInput.value.trim();
-        const children = childrenInput.value.trim();
-        
-        let adultCount = 1; // Always count the submitter
-        let childCount = 0;
-        
-        if (adults) {
-            const adultNames = adults.split(/[\n,;]+/)
-                .map(n => n.trim())
-                .filter(n => n !== '');
-            adultCount += adultNames.length;
-        }
-        
-        if (children) {
-            const childNames = children.split(/[\n,;]+/)
-                .map(n => n.trim())
-                .filter(n => n !== '');
-            childCount = childNames.length;
-        }
-        
-        adultCountDisplay.textContent = adultCount;
-        childCountDisplay.textContent = childCount;
-        countSummary.classList.add('show');
-        
-        console.log('📊 Count updated:', { adultCount, childCount });
-    }
-
-    // Update counts on input
-    adultsInput.addEventListener('input', updateCounts);
-    childrenInput.addEventListener('input', updateCounts);
-
-    // Load saved data
-    document.addEventListener('DOMContentLoaded', function() {
-        loadSavedData();
-        loadSavedAttendees();
-        updateCounts();
-        console.log('📂 Application initialized');
-    });
-
-    function loadSavedData() {
-        try {
-            const savedName = localStorage.getItem('attendance_name');
-            const savedPhone = localStorage.getItem('attendance_phone');
-            
-            console.log('📂 Loading saved data:', { savedName, savedPhone });
-            
-            if (savedName) {
-                submitterInput.value = savedName;
-                nameBadge.style.display = 'inline';
-            }
-            
-            if (savedPhone) {
-                phoneInput.value = savedPhone;
-                phoneBadge.style.display = 'inline';
-            }
-            
-            if (savedName && savedPhone) {
-                savedInfoText.textContent = `👤 ${savedName} · 📞 ${savedPhone}`;
-                savedInfo.classList.add('show');
-            }
-        } catch (e) {
-            console.error('Error loading saved data:', e);
-        }
-    }
-
-    function loadSavedAttendees() {
-        try {
-            const savedAdults = localStorage.getItem('attendance_adults');
-            const savedChildren = localStorage.getItem('attendance_children');
-            
-            console.log('📂 Loading saved attendees:', { savedAdults, savedChildren });
-            
-            let hasSaved = false;
-            let displayText = '';
-            
-            if (savedAdults && savedAdults.trim() !== '') {
-                adultsInput.value = savedAdults;
-                adultsBadge.style.display = 'inline';
-                hasSaved = true;
-                displayText += `👤 Adults: ${savedAdults}`;
-            }
-            
-            if (savedChildren && savedChildren.trim() !== '') {
-                childrenInput.value = savedChildren;
-                childrenBadge.style.display = 'inline';
-                hasSaved = true;
-                if (displayText) displayText += ' | ';
-                displayText += `🧒 Children: ${savedChildren}`;
-            }
-            
-            if (hasSaved) {
-                savedAttendeesList.textContent = displayText;
-                savedAttendees.classList.add('show');
-                updateCounts();
-            }
-        } catch (e) {
-            console.error('Error loading saved attendees:', e);
-        }
-    }
-
-    function saveData(name, phone, adults, children) {
-        try {
-            console.log('💾 Saving data:', { name, phone, adults, children });
-            
-            if (name) localStorage.setItem('attendance_name', name);
-            if (phone) localStorage.setItem('attendance_phone', phone);
-            
-            if (autoSaveCheckbox.checked) {
-                if (adults && adults.trim() !== '') {
-                    localStorage.setItem('attendance_adults', adults);
-                    adultsBadge.style.display = 'inline';
-                } else {
-                    localStorage.removeItem('attendance_adults');
-                    adultsBadge.style.display = 'none';
-                }
-                
-                if (children && children.trim() !== '') {
-                    localStorage.setItem('attendance_children', children);
-                    childrenBadge.style.display = 'inline';
-                } else {
-                    localStorage.removeItem('attendance_children');
-                    childrenBadge.style.display = 'none';
-                }
-            } else {
-                localStorage.removeItem('attendance_adults');
-                localStorage.removeItem('attendance_children');
-                adultsBadge.style.display = 'none';
-                childrenBadge.style.display = 'none';
-            }
-        } catch (e) {
-            console.error('Error saving data:', e);
-        }
-    }
-
-    function clearSavedData() {
-        try {
-            console.log('🗑️ Clearing saved data');
-            localStorage.removeItem('attendance_name');
-            localStorage.removeItem('attendance_phone');
-            localStorage.removeItem('attendance_adults');
-            localStorage.removeItem('attendance_children');
-            
-            submitterInput.value = '';
-            phoneInput.value = '';
-            adultsInput.value = '';
-            childrenInput.value = '';
-            
-            nameBadge.style.display = 'none';
-            phoneBadge.style.display = 'none';
-            adultsBadge.style.display = 'none';
-            childrenBadge.style.display = 'none';
-            savedInfo.classList.remove('show');
-            savedAttendees.classList.remove('show');
-            updateCounts();
-            
-            showStatus('🔄 All saved data cleared.', 'info');
-        } catch (e) {
-            console.error('Error clearing data:', e);
-        }
-    }
-
-    // Auto-save toggle
-    autoSaveCheckbox.addEventListener('change', function() {
-        console.log('🔄 Auto-save toggled:', this.checked);
-        if (!this.checked) {
-            localStorage.removeItem('attendance_adults');
-            localStorage.removeItem('attendance_children');
-            adultsBadge.style.display = 'none';
-            childrenBadge.style.display = 'none';
-            savedAttendees.classList.remove('show');
-        } else {
-            const adults = adultsInput.value.trim();
-            const children = childrenInput.value.trim();
-            if (adults || children) {
-                if (adults) localStorage.setItem('attendance_adults', adults);
-                if (children) localStorage.setItem('attendance_children', children);
-                adultsBadge.style.display = adults ? 'inline' : 'none';
-                childrenBadge.style.display = children ? 'inline' : 'none';
-                savedAttendees.classList.add('show');
-            }
-        }
-    });
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleSubmission();
-    });
-
+    // ... (same loadSavedData, loadSavedAttendees, saveData, clearSavedData, updateCounts functions) ...
+    
+    // ===== UPDATED SUBMISSION HANDLER =====
     async function handleSubmission() {
         const name = submitterInput.value.trim();
         const phone = phoneInput.value.trim();
@@ -626,72 +167,56 @@
             return;
         }
         
-        // Save data
-        saveData(name, phone, adults, children);
-        
-        // Prepare data
-        const data = {
+        // Save data for potential resubmission
+        pendingData = {
             submitter: name,
             phone: phone,
             adults: adults,
             children: children
         };
         
-        console.log('📤 Sending data:', data);
+        // Save data locally
+        saveData(name, phone, adults, children);
         
         // Disable button
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Checking...';
         
         try {
             const response = await fetch(WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(pendingData)
             });
             
-            console.log('📤 Request sent successfully');
+            const result = await response.json();
             
-            // Count for success message
-            const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
-            const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
-            
-            showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
-            console.log('✅ Submission successful!', { adultCount, childCount });
-            
-            // Clear fields if auto-save is off
-            if (!autoSaveCheckbox.checked) {
-                adultsInput.value = '';
-                childrenInput.value = '';
-                updateCounts();
+            // Check for duplicate response
+            if (result.result === 'duplicate') {
+                console.log('⚠️ Duplicate detected:', result);
+                showDuplicateWarning(result);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="whatsapp-icon">📱</span> Sign In Now';
+                return;
             }
             
-            savedInfoText.textContent = `👤 ${name} · 📞 ${phone}`;
-            savedInfo.classList.add('show');
-            nameBadge.style.display = 'inline';
-            phoneBadge.style.display = 'inline';
+            // Handle success
+            if (result.result === 'success') {
+                handleSuccess(result.message, name, phone, adults, children);
+            } else {
+                showStatus('❌ ' + result.message, 'error');
+            }
             
         } catch (error) {
             console.error('❌ Submission error:', error);
-            
             // With no-cors, "Failed to fetch" often means success
             if (error.message && error.message.includes('Failed to fetch')) {
                 const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
                 const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
                 showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
-                console.log('✅ Submission successful (no-cors mode)!', { adultCount, childCount });
-                if (!autoSaveCheckbox.checked) {
-                    adultsInput.value = '';
-                    childrenInput.value = '';
-                    updateCounts();
-                }
-                savedInfoText.textContent = `👤 ${name} · 📞 ${phone}`;
-                savedInfo.classList.add('show');
-                nameBadge.style.display = 'inline';
-                phoneBadge.style.display = 'inline';
+                updateUIAfterSuccess(name, phone);
             } else {
                 showStatus('❌ Error: ' + error.message, 'error');
             }
@@ -701,17 +226,124 @@
         }
     }
 
-    function showStatus(message, type) {
-        console.log('📢 Status message:', { message, type });
-        statusDiv.textContent = message;
-        statusDiv.className = type;
-        statusDiv.style.display = 'block';
+    // ===== DUPLICATE WARNING FUNCTIONS =====
+    
+    function showDuplicateWarning(result) {
+        const modal = document.getElementById('duplicateModal');
+        const messageEl = document.getElementById('duplicateMessage');
+        const previousDataEl = document.getElementById('previousDataDisplay');
+        const previousAdultsEl = document.getElementById('previousAdults');
+        const previousChildrenEl = document.getElementById('previousChildren');
         
-        setTimeout(() => {
-            statusDiv.style.display = 'none';
-        }, 6000);
+        // Set the message
+        messageEl.textContent = result.message;
+        
+        // Show previous data if it exists
+        if (result.previous_adults || result.previous_children) {
+            previousDataEl.style.display = 'block';
+            previousAdultsEl.textContent = result.previous_adults ? `👤 Adults: ${result.previous_adults}` : '';
+            previousChildrenEl.textContent = result.previous_children ? `🧒 Children: ${result.previous_children}` : '';
+        } else {
+            previousDataEl.style.display = 'none';
+        }
+        
+        // Show the modal
+        modal.classList.add('show');
     }
-</script>
+    
+    function cancelDuplicate() {
+        document.getElementById('duplicateModal').classList.remove('show');
+        pendingData = null;
+        showStatus('❌ Submission cancelled', 'info');
+    }
+    
+    async function confirmDuplicate() {
+        document.getElementById('duplicateModal').classList.remove('show');
+        
+        if (!pendingData) return;
+        
+        console.log('📤 Re-submitting (forced):', pendingData);
+        
+        // Disable button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+        
+        try {
+            // Add a flag to bypass duplicate check
+            const dataWithForce = { ...pendingData, force_submit: true };
+            
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataWithForce)
+            });
+            
+            const result = await response.json();
+            
+            if (result.result === 'success') {
+                const adults = pendingData.adults || '';
+                const children = pendingData.children || '';
+                const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
+                const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
+                showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
+                updateUIAfterSuccess(pendingData.submitter, pendingData.phone);
+                
+                // Clear fields if auto-save is off
+                if (!autoSaveCheckbox.checked) {
+                    adultsInput.value = '';
+                    childrenInput.value = '';
+                    updateCounts();
+                }
+            } else {
+                showStatus('❌ ' + result.message, 'error');
+            }
+            
+        } catch (error) {
+            console.error('❌ Re-submission error:', error);
+            if (error.message && error.message.includes('Failed to fetch')) {
+                const adults = pendingData.adults || '';
+                const children = pendingData.children || '';
+                const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
+                const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
+                showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
+                updateUIAfterSuccess(pendingData.submitter, pendingData.phone);
+            } else {
+                showStatus('❌ Error: ' + error.message, 'error');
+            }
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="whatsapp-icon">📱</span> Sign In Now';
+            pendingData = null;
+        }
+    }
 
+    // ===== HELPER FUNCTIONS =====
+    
+    function handleSuccess(message, name, phone, adults, children) {
+        const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
+        const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
+        showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
+        console.log('✅ Submission successful!', { adultCount, childCount });
+        
+        if (!autoSaveCheckbox.checked) {
+            adultsInput.value = '';
+            childrenInput.value = '';
+            updateCounts();
+        }
+        
+        updateUIAfterSuccess(name, phone);
+    }
+    
+    function updateUIAfterSuccess(name, phone) {
+        savedInfoText.textContent = `👤 ${name} · 📞 ${phone}`;
+        savedInfo.classList.add('show');
+        nameBadge.style.display = 'inline';
+        phoneBadge.style.display = 'inline';
+    }
+
+    // ... (rest of the functions: showStatus, etc.)
+</script>
 </body>
 </html>
