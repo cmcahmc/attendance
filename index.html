@@ -176,6 +176,12 @@
             display: block !important;
             border: 1px solid #93c5fd;
         }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            display: block !important;
+            border: 1px solid #fcd34d;
+        }
         .footer {
             margin-top: 20px;
             text-align: center;
@@ -294,6 +300,76 @@
         .gold-accent {
             color: #c9a84c;
         }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 30, 20, 0.55);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            max-width: 380px;
+            width: 100%;
+            padding: 28px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            border: 2px solid #fcd34d;
+            text-align: center;
+        }
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a472a;
+            margin: 0 0 8px 0;
+        }
+        .modal-message {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin: 0 0 22px 0;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+        .modal-btn-cancel {
+            background: #f1f5f9;
+            color: #4a5568;
+        }
+        .modal-btn-cancel:hover {
+            background: #e2e8f0;
+        }
+        .modal-btn-confirm {
+            background: #1a472a;
+            color: white;
+        }
+        .modal-btn-confirm:hover {
+            background: #0f3320;
+        }
     </style>
 </head>
 <body>
@@ -381,11 +457,31 @@
     </div>
 </div>
 
+<!-- Duplicate submission warning modal -->
+<div id="duplicateModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">⏳</div>
+        <h2 class="modal-title">Already Signed In</h2>
+        <p class="modal-message" id="duplicateModalMessage">
+            This looks like the same entry you already submitted recently.
+        </p>
+        <div class="modal-buttons">
+            <button type="button" class="modal-btn modal-btn-cancel" id="duplicateCancelBtn">Cancel</button>
+            <button type="button" class="modal-btn modal-btn-confirm" id="duplicateConfirmBtn">Submit Anyway</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ============================================
     // CONFIGURATION - UPDATE THIS URL!
     // ============================================
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyP3zKt-aty7nyoEAIe-n8y5B9femgcOCNSuI-8IoEf5NV_-1gnswnzGaHSu3NBJl0/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyo5nl9hWpRC_991PX7otH85kR893mbVJZEF5GG03O0nw8S5iF5AHvCKzT4pYDEfis/exec';
+
+    // Duplicate-submission protection: block re-submitting the *exact same*
+    // entry (same name, phone, adults, children) within this window.
+    const DUPLICATE_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
+    const RECENT_SUBMISSIONS_KEY = 'attendance_recent_submissions';
     
     // ============================================
     // MAIN APPLICATION
@@ -411,10 +507,73 @@
     const adultCountDisplay = document.getElementById('adultCountDisplay');
     const childCountDisplay = document.getElementById('childCountDisplay');
     const countSummary = document.getElementById('countSummary');
+    const duplicateModal = document.getElementById('duplicateModal');
+    const duplicateModalMessage = document.getElementById('duplicateModalMessage');
+    const duplicateCancelBtn = document.getElementById('duplicateCancelBtn');
+    const duplicateConfirmBtn = document.getElementById('duplicateConfirmBtn');
+
+    // Holds the entry waiting on a "Submit Anyway" decision from the modal
+    let pendingSubmission = null;
 
     console.log('⛪ Holy Methodist Church Attendance System loaded.');
 
-    // Live count update
+    // ---------- Duplicate-submission protection ----------
+
+    // Build a normalized signature for an entry so trivial differences
+    // (extra spaces, casing, line breaks vs commas) don't create a "new" entry.
+    function buildSignature(name, phone, adults, children) {
+        const normalize = (s) => (s || '')
+            .toLowerCase()
+            .split(/[\n,;]+/)
+            .map(part => part.trim())
+            .filter(part => part !== '')
+            .sort()
+            .join(',');
+
+        return [
+            (name || '').trim().toLowerCase(),
+            (phone || '').replace(/[^0-9]/g, ''),
+            normalize(adults),
+            normalize(children)
+        ].join('|');
+    }
+
+    function getRecentSubmissions() {
+        try {
+            const raw = localStorage.getItem(RECENT_SUBMISSIONS_KEY);
+            if (!raw) return [];
+            const list = JSON.parse(raw);
+            const now = Date.now();
+            // Prune anything outside the window while we're at it
+            return list.filter(item => now - item.timestamp < DUPLICATE_WINDOW_MS);
+        } catch (e) {
+            console.error('Error reading recent submissions:', e);
+            return [];
+        }
+    }
+
+    function saveRecentSubmission(signature) {
+        try {
+            const list = getRecentSubmissions();
+            list.push({ signature, timestamp: Date.now() });
+            localStorage.setItem(RECENT_SUBMISSIONS_KEY, JSON.stringify(list));
+        } catch (e) {
+            console.error('Error saving recent submission:', e);
+        }
+    }
+
+    // Returns remaining milliseconds to wait if this exact entry was
+    // already submitted recently, or null if it's clear to submit.
+    function getDuplicateWaitMs(signature) {
+        const list = getRecentSubmissions();
+        const match = list.find(item => item.signature === signature);
+        if (!match) return null;
+        const remaining = DUPLICATE_WINDOW_MS - (Date.now() - match.timestamp);
+        return remaining > 0 ? remaining : null;
+    }
+
+    // ---------- Live count update ----------
+
     function updateCounts() {
         const adults = adultsInput.value.trim();
         const children = childrenInput.value.trim();
@@ -625,7 +784,39 @@
             phoneInput.focus();
             return;
         }
-        
+
+        // Check for a duplicate submission of the exact same entry within the window.
+        // Instead of blocking outright, warn the submitter and let them confirm.
+        const signature = buildSignature(name, phone, adults, children);
+        const waitMs = getDuplicateWaitMs(signature);
+        if (waitMs !== null) {
+            const waitSeconds = Math.ceil(waitMs / 1000);
+            pendingSubmission = { name, phone, adults, children, signature };
+            duplicateModalMessage.textContent =
+                `You already recorded this exact entry ${Math.max(1, Math.round((DUPLICATE_WINDOW_MS - waitMs) / 1000))}s ago. ` +
+                `If this is intentional (e.g. a genuine second sign-in), you can submit it again.`;
+            duplicateModal.classList.add('show');
+            return;
+        }
+
+        await submitEntry(name, phone, adults, children, signature);
+    }
+
+    // Modal button handlers
+    duplicateCancelBtn.addEventListener('click', function() {
+        duplicateModal.classList.remove('show');
+        pendingSubmission = null;
+    });
+
+    duplicateConfirmBtn.addEventListener('click', async function() {
+        duplicateModal.classList.remove('show');
+        if (!pendingSubmission) return;
+        const { name, phone, adults, children, signature } = pendingSubmission;
+        pendingSubmission = null;
+        await submitEntry(name, phone, adults, children, signature);
+    });
+
+    async function submitEntry(name, phone, adults, children, signature) {
         // Save data
         saveData(name, phone, adults, children);
         
@@ -661,6 +852,7 @@
             
             showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
             console.log('✅ Submission successful!', { adultCount, childCount });
+            saveRecentSubmission(signature);
             
             // Clear fields if auto-save is off
             if (!autoSaveCheckbox.checked) {
@@ -683,6 +875,7 @@
                 const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
                 showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
                 console.log('✅ Submission successful (no-cors mode)!', { adultCount, childCount });
+                saveRecentSubmission(signature);
                 if (!autoSaveCheckbox.checked) {
                     adultsInput.value = '';
                     childrenInput.value = '';
