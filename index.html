@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Holy Methodist Church - Attendance</title>
+    <link rel="icon" type="image/png" href="https://file.garden/amiKlgzZ2GoYPWGN/cmcalogo.png">    
     <style>
         * {
             box-sizing: border-box;
@@ -369,6 +370,36 @@
         .modal-btn-confirm:hover {
             background: #0f3320;
         }
+        .modal-box.success-box {
+            border-color: #86efac;
+        }
+        .modal-icon.success-icon {
+            font-size: 48px;
+        }
+        .modal-summary {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #065f46;
+            text-align: left;
+        }
+        .modal-summary div {
+            margin-bottom: 4px;
+        }
+        .modal-summary div:last-child {
+            margin-bottom: 0;
+        }
+        .modal-btn-ok {
+            background: #1a472a;
+            color: white;
+            width: 100%;
+        }
+        .modal-btn-ok:hover {
+            background: #0f3320;
+        }
     </style>
 </head>
 <body>
@@ -471,6 +502,21 @@
     </div>
 </div>
 
+<!-- Success confirmation modal -->
+<div id="successModal" class="modal-overlay">
+    <div class="modal-box success-box">
+        <div class="modal-icon success-icon">✅</div>
+        <h2 class="modal-title">You're Signed In!</h2>
+        <p class="modal-message" id="successModalMessage">
+            Thank you, your attendance has been recorded.
+        </p>
+        <div class="modal-summary" id="successModalSummary"></div>
+        <div class="modal-buttons">
+            <button type="button" class="modal-btn modal-btn-ok" id="successOkBtn">OK</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ============================================
     // CONFIGURATION - UPDATE THIS URL!
@@ -510,6 +556,10 @@
     const duplicateModalMessage = document.getElementById('duplicateModalMessage');
     const duplicateCancelBtn = document.getElementById('duplicateCancelBtn');
     const duplicateConfirmBtn = document.getElementById('duplicateConfirmBtn');
+    const successModal = document.getElementById('successModal');
+    const successModalMessage = document.getElementById('successModalMessage');
+    const successModalSummary = document.getElementById('successModalSummary');
+    const successOkBtn = document.getElementById('successOkBtn');
 
     // Holds the entry waiting on a "Submit Anyway" decision from the modal
     let pendingSubmission = null;
@@ -849,7 +899,7 @@
             const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
             const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
             
-            showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
+            showSuccessModal(name, adultCount, childCount);
             console.log('✅ Submission successful!', { adultCount, childCount });
             saveRecentSubmission(signature);
             
@@ -872,7 +922,7 @@
             if (error.message && error.message.includes('Failed to fetch')) {
                 const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
                 const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
-                showStatus(`✅ Recorded: ${adultCount} adult(s), ${childCount} child(ren)`, 'success');
+                showSuccessModal(name, adultCount, childCount);
                 console.log('✅ Submission successful (no-cors mode)!', { adultCount, childCount });
                 saveRecentSubmission(signature);
                 if (!autoSaveCheckbox.checked) {
@@ -903,6 +953,18 @@
             statusDiv.style.display = 'none';
         }, 6000);
     }
+
+    function showSuccessModal(name, adultCount, childCount) {
+        successModalMessage.textContent = `Thank you, ${name}! Your attendance has been recorded.`;
+        successModalSummary.innerHTML =
+            `<div>👤 <strong>${adultCount}</strong> adult(s)</div>` +
+            `<div>🧒 <strong>${childCount}</strong> child(ren)</div>`;
+        successModal.classList.add('show');
+    }
+
+    successOkBtn.addEventListener('click', function() {
+        successModal.classList.remove('show');
+    });
 </script>
 
 </body>
