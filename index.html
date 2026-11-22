@@ -455,7 +455,7 @@
                 <span id="phoneBadge" class="prefilled-badge" style="display: none;">✓ Saved</span>
             </label>
             <!-- Changed from type="tel" to type="text" to preserve formatting -->
-            <input type="text" id="phone" name="phone" placeholder="e.g., 0123456789" required inputmode="numeric" pattern="[0-9+\-() ]*">
+            <input type="text" id="phone" name="phone" placeholder="e.g., 0123456789" required inputmode="numeric" pattern="[0-9+ \(\)\-]*">
             <span class="hint">Include leading zero (e.g., 0123456789)</span>
         </div>
 
@@ -605,25 +605,30 @@
         ].join('|');
     }
 
+    // In-memory copy so the duplicate warning still works on this page even if
+    // the browser blocks localStorage (e.g. some in-app or private browsers).
+    let recentSubmissionsMemory = [];
+
     function getRecentSubmissions() {
+        const now = Date.now();
+        let stored = [];
         try {
             const raw = localStorage.getItem(RECENT_SUBMISSIONS_KEY);
-            if (!raw) return [];
-            const list = JSON.parse(raw);
-            const now = Date.now();
-            // Prune anything outside the window while we're at it
-            return list.filter(item => now - item.timestamp < DUPLICATE_WINDOW_MS);
+            if (raw) stored = JSON.parse(raw);
         } catch (e) {
             console.error('Error reading recent submissions:', e);
-            return [];
         }
+        // Combine both sources and prune anything outside the window
+        return stored.concat(recentSubmissionsMemory)
+            .filter(item => now - item.timestamp < DUPLICATE_WINDOW_MS);
     }
 
     function saveRecentSubmission(signature) {
+        const entry = { signature, timestamp: Date.now() };
+        recentSubmissionsMemory = getRecentSubmissions().filter(i => i.signature !== signature);
+        recentSubmissionsMemory.push(entry);
         try {
-            const list = getRecentSubmissions();
-            list.push({ signature, timestamp: Date.now() });
-            localStorage.setItem(RECENT_SUBMISSIONS_KEY, JSON.stringify(list));
+            localStorage.setItem(RECENT_SUBMISSIONS_KEY, JSON.stringify(recentSubmissionsMemory));
         } catch (e) {
             console.error('Error saving recent submission:', e);
         }
@@ -936,8 +941,10 @@
         } catch (error) {
             console.error('❌ Submission error:', error);
             
-            // With no-cors, "Failed to fetch" often means success
-            if (error.message && error.message.includes('Failed to fetch')) {
+            // With no-cors, a rejected fetch often still means the data went through.
+            // Chrome says "Failed to fetch", Safari/iPhone says "Load failed",
+            // Firefox says "NetworkError ...".
+            if (error.message && /Failed to fetch|Load failed|NetworkError/i.test(error.message)) {
                 const adultCount = adults ? adults.split(/[\n,;]+/).filter(n => n.trim() !== '').length + 1 : 1;
                 const childCount = children ? children.split(/[\n,;]+/).filter(n => n.trim() !== '').length : 0;
                 showSuccessModal(name, adultCount, childCount);
@@ -977,4 +984,13 @@
         successModalSummary.innerHTML =
             `<div>👤 <strong>${adultCount}</strong> adult(s)</div>` +
             `<div>🧒 <strong>${childCount}</strong> child(ren)</div>`;
-        successModal.classLis
+        successModal.classList.add('show');
+    }
+
+    successOkBtn.addEventListener('click', function() {
+        successModal.classList.remove('show');
+    });
+</script>
+
+</body>
+</html>
